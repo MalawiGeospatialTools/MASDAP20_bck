@@ -14,11 +14,11 @@ echo "creating backup folder -->" $today_dir
 mkdir $today_dir
 
 echo $(date) "--> dumping geonode db"
-pg_dump -Fc -U geonode geonode > $today_dir/geonode.dump
+pg_dump -Fc geonode > $today_dir/geonode.dump
 echo $(date) "--> geonode db dumped"
 
 echo $(date) "--> dumping geonode_imports db"
-pg_dump -Fc -U geonode geonode_imports > $today_dir/geonode_imports.dump
+pg_dump -Fc -b -U geonode geonode_imports > $today_dir/geonode_imports.dump
 echo $(date) "--> geonode_imports db dumped"
 
 # removing old folders
@@ -51,9 +51,17 @@ echo "checking backup folder -->" $this_week_dir
 if [ -e $this_week_dir ]
 then
   echo folder exists
+  echo $(date) "--> creating incremental archive"
+  sudo tar -cvpzf $this_week_dir/incr_dump.tgz -C /mnt -g $this_week_dir/tarlog.snap --backup=numbered geoserver_data
+  sudo cp $this_week_dir/tarlog_lev0.snap $this_week_dir/tarlog.snap
+  echo $(date) "--> incremental archive created"
 else
   echo creating folder
   mkdir $this_week_dir
+  echo $(date) "--> creating archive"
+  sudo tar -cpzf $this_week_dir/full_dump.tgz -C /mnt -g $this_week_dir/tarlog.snap geoserver_data
+  sudo cp $this_week_dir/tarlog.snap $this_week_dir/tarlog_lev0.snap
+  echo $(date) "--> archive created"
 fi
 
 echo $(date) "--> starting copy"
