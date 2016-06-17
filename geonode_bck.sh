@@ -14,7 +14,7 @@ echo "creating backup folder -->" $today_dir
 mkdir $today_dir
 
 echo $(date) "--> dumping geonode db"
-pg_dump -Fc geonode > $today_dir/geonode.dump
+pg_dump -Fc -U postgres geonode > $today_dir/geonode.dump
 echo $(date) "--> geonode db dumped"
 
 echo $(date) "--> dumping geonode_imports db"
@@ -52,7 +52,7 @@ if [ -e $this_week_dir ]
 then
   echo folder exists
   echo $(date) "--> creating incremental archive"
-  sudo tar -cvpzf $this_week_dir/incr_dump.tgz -C /mnt -g $this_week_dir/tarlog.snap --backup=numbered geoserver_data
+  sudo tar -cpzf $this_week_dir/incr_dump.tgz -C /mnt -g $this_week_dir/tarlog.snap --backup=numbered geoserver_data
   sudo cp $this_week_dir/tarlog_lev0.snap $this_week_dir/tarlog.snap
   echo $(date) "--> incremental archive created"
 else
