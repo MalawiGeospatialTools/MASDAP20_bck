@@ -14,7 +14,7 @@ echo "creating backup folder -->" $today_dir
 mkdir $today_dir
 
 echo $(date) "--> dumping geonode db"
-pg_dump -Fc -U postgres geonode > $today_dir/geonode.dump
+pg_dump -Fc -U geonode geonode > $today_dir/geonode.dump
 echo $(date) "--> geonode db dumped"
 
 echo $(date) "--> dumping geonode_imports db"
@@ -63,10 +63,6 @@ else
   sudo cp $this_week_dir/tarlog.snap $this_week_dir/tarlog_lev0.snap
   echo $(date) "--> archive created"
 fi
-
-echo $(date) "--> starting copy"
-sudo cp -L -R --preserve=all -u --backup=numbered /mnt/geoserver_data/ $this_week_dir
-echo $(date) "--> copy complete"
 
 # now deleting old folders
 bck_dir=/mnt/auto_bck/geoserver_bck
