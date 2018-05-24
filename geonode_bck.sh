@@ -64,6 +64,16 @@ else
   echo $(date) "--> archive created"
 fi
 
+# SHORT NOTE ON HOW-TO RESTORE: firstly restore the full dump, then restore an incremental dump on top of it
+# restoring the full dump (example)
+# sudo tar xpzf full_dump.tgz -C /destination/folder
+
+# restoring incremental dump (example)
+# sudo tar xpzf incr_dump.tgz -C /destination/folder --listed-incremental=/dev/null
+
+# restoring a single file (example): include the full path to the file on the archive, as it is printed with tar --list
+# sudo tar xpzf full_dump.tgz -C /destination/folder geoserver-data/workspaces/geonode/osm_extracts/schools_point_osm/layer.xml
+
 # now deleting old folders
 bck_dir=/mnt/auto_bck/geoserver_bck
 
