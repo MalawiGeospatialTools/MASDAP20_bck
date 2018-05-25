@@ -83,8 +83,60 @@ done
 
 echo "-----------------------------------------------------------------"
 echo $(date) "--> starting geonode backup"
+
+# setting the backup folder
+static_bck_root=$bck_root/static
+
 python /home/ubuntu/geonode_bck/backup-restore/backup.py
-mv /home/ubuntu/backup/* /mnt/data/auto-bck/static
+mv /home/ubuntu/backup/* $static_bck_root
 echo $(date) "--> geonode backup complete"
+
+# now deleting old folders
+
+# keep only 1st day of the month for previous months (current -2 to older)
+prev_months_rmdir=`ls $static_bck_root | grep --invert-match \
+  -e $(date -d "-1 month" +%Y-%m) -e $(date +%Y-%m) | \
+  grep --invert-match -e "-01_"`
+
+for dir in $(prev_months_rmdir)
+do
+  echo removing $dir
+  rm -r $(echo $static_bck_root"/"$dir)
+done
+
+# keep 10 latest backups, plus day 1st, 8th, 16th, and 24th 
+# for the current month
+cur_month_rmdir=`ls $static_bck_root | grep -e $(date +%Y-%m) | \
+  grep --invert-match -e $(date +%Y-%m-%d) -e $(date -d "-1 day" +%Y-%m-%d)\
+  -e $(date -d "-2 day" +%Y-%m-%d) -e $(date -d "-3 day" +%Y-%m-%d)\
+  -e $(date -d "-4 day" +%Y-%m-%d) -e $(date -d "-5 day" +%Y-%m-%d)\
+  -e $(date -d "-6 day" +%Y-%m-%d) -e $(date -d "-7 day" +%Y-%m-%d)\
+  -e $(date -d "-8 day" +%Y-%m-%d) -e $(date -d "-9 day" +%Y-%m-%d) | \
+  grep --invert-match -e $(date +%Y-%m-01_) -e $(date +%Y-%m-08_)\
+  -e $(date +%Y-%m-16_) -e $(date +%Y-%m-24_)`
+
+for dir in $cur_month_rmdir
+do
+  echo removing $dir
+  rm -r $(echo $static_bck_root"/"$dir)
+done
+
+# keep day 1st, 8th, 16th, and 24th for the previous month
+# plus the 10 latest, if still included in the previous month
+prev_month_rmdir=`ls $static_bck_root | grep -e $(date -d "-1 month" +%Y-%m) |\
+  grep --invert-match -e $(date +%Y-%m-%d) -e $(date -d "-1 day" +%Y-%m-%d)\
+  -e $(date -d "-2 day" +%Y-%m-%d) -e $(date -d "-3 day" +%Y-%m-%d)\
+  -e $(date -d "-4 day" +%Y-%m-%d) -e $(date -d "-5 day" +%Y-%m-%d)\
+  -e $(date -d "-6 day" +%Y-%m-%d) -e $(date -d "-7 day" +%Y-%m-%d)\
+  -e $(date -d "-8 day" +%Y-%m-%d) -e $(date -d "-9 day" +%Y-%m-%d) | \
+  grep --invert-match -e $(date -d "-1 month" +%Y-%m-01_) \
+  -e $(date -d "-1 month" +%Y-%m-08_) -e $(date -d "-1 month" +%Y-%m-16_) \
+  -e $(date -d "-1 month" +%Y-%m-24_)`
+
+for dir in $prev_month_rmdir
+do
+  echo removing $dir
+  rm -r $(echo $static_bck_root"/"$dir)
+done
 
 echo "end of procedure"
